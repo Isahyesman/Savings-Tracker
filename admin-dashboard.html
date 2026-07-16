@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin Dashboard — Savings Tracker</title>
+<meta name="theme-color" content="#0F4C81">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="admin-dashboard">
+  <div class="app-shell" id="adminApp">
+
+    <!-- ============ HOME (action hub) ============ -->
+    <div class="view active" id="admin-home">
+      <div class="topbar">
+        <div class="title-block">
+          <h1>Hi, <span id="adminNameDisplay">Admin</span></h1>
+          <p>Admin Portal</p>
+        </div>
+        <button class="logout-btn" id="logoutBtn">Log out</button>
+      </div>
+      <div class="dash-content">
+        <div class="action-grid">
+          <button class="action-card" id="cardOpenAccount">
+            <div class="ic">➕</div>
+            <div class="txt"><strong>Open New Account</strong><span>Register a client</span></div>
+          </button>
+          <button class="action-card" id="cardAddEntry">
+            <div class="ic">💰</div>
+            <div class="txt"><strong>Add Entry</strong><span>Record savings</span></div>
+          </button>
+          <button class="action-card" id="cardLoan">
+            <div class="ic">🏦</div>
+            <div class="txt"><strong>Loan / Payment</strong><span>Issue or repay</span></div>
+          </button>
+          <button class="action-card" id="cardClients">
+            <div class="ic">📜</div>
+            <div class="txt"><strong>Clients History</strong><span>View all records</span></div>
+          </button>
+          <button class="action-card" id="cardManageClients">
+            <div class="ic">🗂️</div>
+            <div class="txt"><strong>Manage Clients</strong><span>Edit, delete or recover login details</span></div>
+          </button>
+          <button class="action-card" id="cardReport">
+            <div class="ic">📊</div>
+            <div class="txt"><strong>Daily Report</strong><span>All transactions in a table</span></div>
+          </button>
+          <button class="action-card" id="cardInbox">
+            <div class="ic">📩</div>
+            <div class="txt"><strong>Inbox</strong><span>Client messages</span></div>
+            <div class="badge" id="inboxBadge" style="display:none;"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ OPEN NEW ACCOUNT ============ -->
+    <div class="view" id="view-open-account">
+      <div class="topbar">
+        <button class="back-btn" data-back-home>←</button>
+        <div class="title-block"><h1>Open New Account</h1><p>Register a client</p></div>
+      </div>
+      <div class="dash-content">
+        <p class="section-sub">Client identity</p>
+        <form id="openAccountForm">
+          <div class="field">
+            <label for="newClientName">Full Name</label>
+            <input type="text" id="newClientName" placeholder="e.g. Grace Adeyemi" required>
+          </div>
+          <div class="field">
+            <label for="newClientId">ID Number</label>
+            <input type="text" id="newClientId" placeholder="e.g. 00512" required>
+            <div class="error-text" id="newClientIdError">This ID already has an account.</div>
+          </div>
+          <div class="field">
+            <label for="newClientPhone">Phone Number</label>
+            <input type="text" id="newClientPhone" placeholder="e.g. 0803 000 0000">
+          </div>
+          <div class="field">
+            <label for="newClientUsername">Username</label>
+            <input type="text" id="newClientUsername" placeholder="auto-suggested from name" required>
+          </div>
+          <div class="field">
+            <label for="newClientPassword">Set Password</label>
+            <input type="text" id="newClientPassword" placeholder="Type a password for this client" required>
+            <div class="hint">Share this with the client yourself — write it down or tell them directly.</div>
+          </div>
+          <button type="submit" class="btn btn-client btn-block">Create Account</button>
+        </form>
+        <div class="alert alert-success" id="createSuccess"></div>
+      </div>
+    </div>
+
+    <!-- ============ ADD ENTRY (SAVINGS) ============ -->
+    <div class="view" id="view-add-entry">
+      <div class="topbar">
+        <button class="back-btn" data-back-home>←</button>
+        <div class="title-block"><h1>Add Entry</h1><p>Record a deposit or withdrawal</p></div>
+      </div>
+      <div class="dash-content">
+        <div class="field">
+          <label for="entrySearch">Search Client</label>
+          <div class="search-wrap">
+            <span class="mag">🔍</span>
+            <input type="text" id="entrySearch" placeholder="Name or ID number">
+          </div>
+          <div class="suggest-list" id="entrySuggest"></div>
+        </div>
+        <div class="client-pick" id="entryPick"></div>
+
+        <div class="toggle-row">
+          <div class="toggle-opt active" id="entryTypeDeposit">Deposit</div>
+          <div class="toggle-opt" id="entryTypeWithdrawal">Withdrawal</div>
+        </div>
+        <div class="field">
+          <label for="entryAmount">Amount (₦)</label>
+          <input type="number" id="entryAmount" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label for="entryNote">Note (optional)</label>
+          <textarea id="entryNote" placeholder="e.g. Weekly contribution"></textarea>
+        </div>
+        <button class="btn btn-client btn-block" id="entryReviewBtn">Review Entry →</button>
+
+        <div class="review-card" id="entryReview"></div>
+        <div class="btn-row" id="entryConfirmRow" style="display:none;">
+          <button class="btn btn-outline" id="entryCancelBtn">Cancel</button>
+          <button class="btn btn-admin" id="entryConfirmBtn">Confirm &amp; Save</button>
+        </div>
+        <div class="alert alert-success" id="entrySuccess"></div>
+      </div>
+    </div>
+
+    <!-- ============ LOAN / PAYMENT ============ -->
+    <div class="view" id="view-loan">
+      <div class="topbar">
+        <button class="back-btn" data-back-home>←</button>
+        <div class="title-block"><h1>Loan / Payment</h1><p>Issue a loan or record a repayment</p></div>
+      </div>
+      <div class="dash-content">
+        <div class="tab-bar">
+          <button id="loanTabNew" class="active">New Loan</button>
+          <button id="loanTabPay">Record Payment</button>
+        </div>
+
+        <div class="panel active" id="loanPanelNew">
+          <div class="field">
+            <label for="loanSearch">Search Client</label>
+            <div class="search-wrap">
+              <span class="mag">🔍</span>
+              <input type="text" id="loanSearch" placeholder="Name or ID number">
+            </div>
+            <div class="suggest-list" id="loanSuggest"></div>
+          </div>
+          <div class="client-pick" id="loanPick"></div>
+          <div class="field">
+            <label for="loanPrincipal">Principal Amount (₦)</label>
+            <input type="number" id="loanPrincipal" placeholder="0.00">
+          </div>
+          <div class="field">
+            <label for="loanRate">Interest Rate (%)</label>
+            <input type="number" id="loanRate" placeholder="e.g. 5">
+          </div>
+          <div class="field">
+            <label for="loanDue">Due Date</label>
+            <input type="date" id="loanDue">
+          </div>
+          <button class="btn btn-client btn-block" id="loanReviewBtn">Review Loan →</button>
+          <div class="review-card" id="loanReview"></div>
+          <div class="btn-row" id="loanConfirmRow" style="display:none;">
+            <button class="btn btn-outline" id="loanCancelBtn">Cancel</button>
+            <button class="btn btn-admin" id="loanConfirmBtn">Confirm &amp; Save</button>
+          </div>
+          <div class="alert alert-success" id="loanSuccess"></div>
+        </div>
+
+        <div class="panel" id="loanPanelPay">
+          <div class="field">
+            <label for="paySearch">Search Client</label>
+            <div class="search-wrap">
+              <span class="mag">🔍</span>
+              <input type="text" id="paySearch" placeholder="Name or ID number">
+            </div>
+            <div class="suggest-list" id="paySuggest"></div>
+          </div>
+          <div class="client-pick" id="payPick"></div>
+          <div id="payLoanList"></div>
+          <div id="payFormArea"></div>
+          <div class="alert alert-success" id="paySuccess"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ CLIENTS HISTORY ============ -->
+    <div class="view" id="view-clients">
+      <div class="topbar">
+        <button class="back-btn" data-back-home>←</button>
+        <div class="title-block"><h1>Clients History</h1><p>All client records</p></div>
+      </div>
+      <div class="dash-content">
+        <div class="search-wrap">
+          <span class="mag">🔍</span>
+          <input type="text" id="clientsHistorySearch" placeholder="Search clients">
+        </div>
+        <div id="clientsHistoryList"></div>
+      </div>
+    </div>
+
+    <!-- ============ CLIENT DETAIL ============ -->
+    <div class="view" id="view-client-detail">
+      <div class="topbar">
+        <button class="back-btn" id="backToClientsBtn">←</button>
+        <div class="title-block"><h1 id="clientDetailName">Client</h1><p>Full record</p></div>
+      </div>
+      <div class="dash-content">
+        <div class="tab-bar">
+          <button id="cdTabSavings" class="active">Savings</button>
+          <button id="cdTabLoans">Loans</button>
+          <button id="cdTabMsgs">Messages</button>
+        </div>
+        <div class="panel active" id="cdPanelSavings"></div>
+        <div class="panel" id="cdPanelLoans"></div>
+        <div class="panel" id="cdPanelMsgs"></div>
+      </div>
+    </div>
+
+    <!-- ============ MANAGE CLIENTS ============ -->
+    <div class="view" id="view-manage-clients">
+      <div class="topbar">
+        <button class="back-btn" data-back-home>←</button>
+        <div class="title-block"><h1>Manage Clients</h1><p>Edit, delete or recover login details</p></div>
+      </div>
+      <div class="dash-content">
+        <div class="search-wrap">
+          <span class="mag">🔍</span>
+          <input type="text" id="manageClientsSearch" placeholder="Search clients">
+        </div>
+        <div id="manageClientsList"></div>
+      </div>
+    </div>
+
+    <!-- ============ EDIT CLIENT ============ -->
+    <div class="view" id="view-edit-client">
+      <div class="topbar">
+        <button class="back-btn" id="backToManageClientsBtn">←</button>
+        <div class="title-block"><h1>Edit Client</h1><p>Update or recover login details</p></div>
+      </div>
+      <div class="dash-content">
+        <form id="editClientForm">
+          <div class="field">
+            <label for="editClientName">Full Name</label>
+            <input type="text" id="editClientName" required>
+          </div>
+          <div class="field">
+            <label for="editClientId">ID Number</label>
+            <input type="text" id="editClientId" required>
+            <div class="error-text" id="editClientIdError">This ID already belongs to another client.</div>
+          </div>
+          <div class="field">
+            <label for="editClientPhone">Phone Number</label>
+            <input type="text" id="editClientPhone">
+          </div>
+          <div class="field">
+            <label for="editClientUsername">Username</label>
+            <input type="text" id="editClientUsername" required>
+          </div>
+          <div class="field">
+            <label for="editClientPassword">Password</label>
+            <input type="text" id="editClientPassword" required>
+            <div class="hint">Visible here so you can recover it for the client if they forget.</div>
+          </div>
+          <button type="submit" class="btn btn-client btn-block">Save Changes</button>
+        </form>
+        <div class="alert alert-success" id="editClientSuccess"></div>
+
+        <div class="btn-row" style="margin-top:26px;">
+          <button class="btn btn-danger" id="deleteClientBtn" style="width:100%;">Delete This Client</button>
+        </div>
+        <div class="review-card" id="deleteClientConfirm">
+          <p style="margin:0 0 12px;font-size:0.85rem;">Delete <strong id="deleteClientName"></strong>? Their savings, loan, and message history will remain in records, but they will no longer be able to log in. This cannot be undone.</p>
+          <div class="btn-row">
+            <button class="btn btn-outline" id="deleteClientCancelBtn">Cancel</button>
+            <button class="btn btn-danger" id="deleteClientConfirmBtn">Yes, Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DAILY REPORT ============ -->
+    <div class="view" id="view-report">
+      <div class="topbar">
+        <button class="back-btn" data-back-home>←</button>
+        <div class="title-block"><h1>Daily Report</h1><p>All transactions and activity</p></div>
+      </div>
+      <div class="dash-content">
+        <div class="field">
+          <label for="reportDate">Date</label>
+          <input type="date" id="reportDate">
+        </div>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="btn btn-outline" id="reportViewAllBtn">View All Time</button>
+          <button class="btn btn-admin" id="reportViewDayBtn">View This Day</button>
+        </div>
+        <button class="btn btn-client btn-block" id="reportExportBtn" style="margin-top:10px;">⬇ Export to Excel</button>
+
+        <div class="tile-row" id="reportSummary" style="margin-top:18px;"></div>
+
+        <div style="overflow-x:auto; margin-top:8px;">
+          <table class="report-table" id="reportTable">
+            <thead>
+              <tr><th>Date</th><th>Client</th><th>Type</th><th>Amount</th><th>By</th></tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ INBOX ============ -->
+    <div class="view" id="view-inbox">
+      <div class="topbar">
+        <button class="back-btn" data-back-home>←</button>
+        <div class="title-block"><h1>Inbox</h1><p>Client messages</p></div>
+      </div>
+      <div class="dash-content">
+        <div id="inboxList"></div>
+      </div>
+    </div>
+
+    <!-- ============ THREAD (admin reply view) ============ -->
+    <div class="view" id="view-thread">
+      <div class="topbar">
+        <button class="back-btn" id="backToInboxBtn">←</button>
+        <div class="title-block"><h1 id="adminThreadName">Client</h1><p>Message thread</p></div>
+      </div>
+      <div class="dash-content">
+        <div class="chat-area" id="adminChatArea"></div>
+        <div class="chat-input-row">
+          <textarea id="adminReplyText" placeholder="Type a reply..."></textarea>
+          <button id="adminReplySend">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <style>
+    /* View switching (page-specific, kept local to this page) */
+    #adminApp .view{display:none; min-height:100vh;}
+    #adminApp .view.active{display:flex; flex-direction:column;}
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>My Savings — Savings Tracker</title>
+<meta name="theme-color" content="#118A6D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="client-dashboard">
+  <div class="app-shell">
+    <div class="topbar" style="background:linear-gradient(135deg, var(--blue-900), var(--green-600));">
+      <div class="title-block">
+        <h1>Hi, <span id="clientNameDisplay">there</span> 👋</h1>
+        <p id="clientHeroDate"></p>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Log out</button>
+    </div>
+
+    <div class="dash-content">
+
+      <!-- Available Savings — hero card -->
+      <div class="hero-balance">
+        <div class="label">Available Savings</div>
+        <div class="amount" id="clientAvailable">₦0</div>
+        <div class="updated">Live balance — updates when your admin records an entry</div>
+      </div>
+
+      <div class="tile-row">
+        <div class="tile">
+          <div class="t-label">Active Loan</div>
+          <div class="t-val" id="clientActiveLoan">₦0</div>
+        </div>
+        <div class="tile">
+          <div class="t-label">Total Saved</div>
+          <div class="t-val" id="clientTotalSaved">₦0</div>
+        </div>
+      </div>
+
+      <!-- Action tabs: Savings History / Borrowed History / Message -->
+      <div class="tab-bar client-tabs">
+        <button id="clTabSavings" class="active">Savings History</button>
+        <button id="clTabLoans">Borrowed History</button>
+        <button id="clTabMsg">Message</button>
+      </div>
+
+      <div class="panel active" id="clPanelSavings">
+        <p class="section-sub">Every deposit and withdrawal on your account, most recent first.</p>
+        <div id="clSavingsListWrap"></div>
+      </div>
+
+      <div class="panel" id="clPanelLoans">
+        <p class="section-sub">Your loan history and repayment progress.</p>
+        <div id="clLoansListWrap"></div>
+      </div>
+
+      <div class="panel" id="clPanelMsg">
+        <p class="section-sub">Drop a message to your admin — they'll reply here.</p>
+        <div class="chat-area" id="clientChatArea"></div>
+        <div class="preset-row">
+          <div class="preset-chip" data-preset="loan">Loan question</div>
+          <div class="preset-chip" data-preset="deposit">Deposit not showing</div>
+          <div class="preset-chip" data-preset="other">Other</div>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="clientMsgText" placeholder="Type your message..."></textarea>
+          <button id="clientMsgSend">Send</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-note">Savings Tracker · Client Portal</div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
