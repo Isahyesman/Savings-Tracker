@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firestore Connection Test</title>
+<style>
+  body{font-family:sans-serif;background:#111;color:#eee;padding:20px;max-width:600px;margin:0 auto;}
+  h1{font-size:1.2rem;}
+  .box{background:#1c1c1c;border-radius:8px;padding:14px;margin:12px 0;border:1px solid #333;}
+  .pass{border-color:#2ecc71;color:#2ecc71;}
+  .fail{border-color:#e74c3c;color:#e74c3c;}
+  .pending{border-color:#f39c12;color:#f39c12;}
+  button{background:#2980b9;color:#fff;border:none;padding:12px 18px;border-radius:6px;font-size:1rem;width:100%;margin-top:10px;}
+  input{width:100%;padding:10px;border-radius:6px;border:1px solid #444;background:#000;color:#fff;margin-top:6px;box-sizing:border-box;}
+  pre{white-space:pre-wrap;word-break:break-all;font-size:0.75rem;background:#000;padding:8px;border-radius:4px;}
+  .log{font-size:0.8rem;color:#999;margin-top:4px;}
+</style>
+</head>
+<body>
+  <h1>🔬 Firestore Connection Test</h1>
+  <p class="log">This page has no connection to the rest of the app — no cache, no service worker, no old code. It tells us directly whether THIS device can reach Firestore at all.</p>
+
+  <label>Device label (e.g. "Device B - phone")</label>
+  <input type="text" id="deviceLabel" placeholder="Type a name for this device">
+  <button id="runTest">Run Test</button>
+
+  <div id="results"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC24cfjiXcqscZPeDgcCuWYiPPxuSZrXJI",
+      authDomain: "savings-tracker-c2001.firebaseapp.com",
+      projectId: "savings-tracker-c2001",
+      storageBucket: "savings-tracker-c2001.firebasestorage.app",
+      messagingSenderId: "1018765427298",
+      appId: "1:1018765427298:web:99131c2142c336a0bfc73b"
+    };
+
+    const results = document.getElementById('results');
+
+    function addBox(id, status, text){
+      let box = document.getElementById(id);
+      if(!box){
+        box = document.createElement('div');
+        box.id = id;
+        results.appendChild(box);
+      }
+      box.className = 'box ' + status;
+      box.innerHTML = text;
+    }
+
+    document.getElementById('runTest').addEventListener('click', async ()=>{
+      results.innerHTML = '';
+      const label = document.getElementById('deviceLabel').value.trim() || 'Unnamed device';
+
+      addBox('init', 'pending', '⏳ Connecting to Firebase...');
+      let app, db;
+      try{
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        addBox('init', 'pass', '✅ Firebase connected successfully.');
+      }catch(err){
+        addBox('init', 'fail', '❌ FAILED to even connect to Firebase.<br><pre>' + err.message + '</pre>');
+        return;
+      }
+
+      addBox('write', 'pending', '⏳ Attempting to WRITE a test record...');
+      let writeOk = false;
+      try{
+        const docRef = await addDoc(collection(db, 'connectionTests'), {
+          device: label,
+          timestamp: new Date().toISOString(),
+          message: 'Hello from ' + label
+        });
+        writeOk = true;
+        addBox('write', 'pass', '✅ WRITE succeeded. Document ID: ' + docRef.id);
+      }catch(err){
+        addBox('write', 'fail', '❌ WRITE FAILED.<br><pre>' + err.code + ': ' + err.message + '</pre>');
+      }
+
+      addBox('read', 'pending', '⏳ Attempting to READ recent records...');
+      try{
+        const q = query(collection(db, 'connectionTests'), orderBy('timestamp', 'desc'), limit(5));
+        const snap = await getDocs(q);
+        if(snap.empty){
+          addBox('read', 'fail', '⚠️ READ succeeded but found ZERO records — collection may be empty or inaccessible.');
+        }else{
+          const list = snap.docs.map(d => {
+            const data = d.data();
+            return `${data.timestamp} — ${escapeHtml(data.device)}: ${escapeHtml(data.message)}`;
+          }).join('<br>');
+          addBox('read', 'pass', '✅ READ succeeded. Last 5 records across ALL devices that have run this test:<br><pre>' + list + '</pre>');
+        }
+      }catch(err){
+        addBox('read', 'fail', '❌ READ FAILED.<br><pre>' + err.code + ': ' + err.message + '</pre>');
+      }
+
+      addBox('summary', writeOk ? 'pass' : 'fail', writeOk
+        ? '🎉 This device CAN read and write to Firestore. If the main app still doesn\'t show records, the problem is in the app itself, not this device\'s connection.'
+        : '🚨 This device CANNOT write to Firestore. This is a real connection/permission problem on this specific device or network — screenshot this whole page and send it back.');
+    });
+
+    function escapeHtml(str){
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
