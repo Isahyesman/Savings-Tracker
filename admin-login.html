@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin Login — Savings Tracker</title>
+<meta name="theme-color" content="#0F4C81">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="admin-login">
+  <div class="app-shell">
+    <div class="login-screen">
+      <div class="login-brandmark admin-mark">
+        <div class="mark">S</div>
+        <span class="brandname">Savings Tracker</span>
+      </div>
+
+      <div class="login-card">
+        <h2>Admin Portal</h2>
+        <p class="sub">Authorized staff sign-in.</p>
+
+        <form id="adminLoginForm" novalidate>
+          <div class="field">
+            <label for="adminUsername">Username</label>
+            <input type="text" id="adminUsername" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" autocomplete="current-password" required>
+          </div>
+          <div class="alert alert-error" id="adminLoginError"></div>
+          <button type="submit" class="btn btn-admin btn-block">Log In</button>
+        </form>
+
+        <div class="login-switch">Not an admin? <a href="client-login.html">Go to Client Portal</a></div>
+        <div class="login-switch"><a href="index.html">← Back to portal selection</a></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

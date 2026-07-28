@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Client Login — Savings Tracker</title>
+<meta name="theme-color" content="#118A6D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="client-login">
+  <div class="app-shell">
+    <div class="login-screen">
+      <div class="login-brandmark client-mark">
+        <div class="mark">S</div>
+        <span class="brandname">Savings Tracker</span>
+      </div>
+
+      <div class="login-card">
+        <h2>Client Portal</h2>
+        <p class="sub">Sign in to view your savings and loans.</p>
+
+        <form id="clientLoginForm" novalidate>
+          <div class="field">
+            <label for="clientUsername">Username</label>
+            <input type="text" id="clientUsername" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="clientIdNumber">ID Number</label>
+            <input type="text" id="clientIdNumber" required>
+          </div>
+          <div class="field">
+            <label for="clientPassword">Password</label>
+            <input type="password" id="clientPassword" autocomplete="current-password" required>
+          </div>
+          <div class="alert alert-error" id="clientLoginError"></div>
+          <button type="submit" class="btn btn-client btn-block">Log In</button>
+        </form>
+
+        <div class="login-switch">Are you an admin? <a href="admin-login.html">Go to Admin Portal</a></div>
+        <div class="login-switch"><a href="index.html">← Back to portal selection</a></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
